@@ -1,0 +1,22 @@
+{
+  "name": "rdpmonster-mcp",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "MCP for manager.rdp.monster (black) — login + register",
+  "bin": {
+    "rdpmonster-mcp": "./src/index.js"
+  },
+  "scripts": {
+    "start": "node src/index.js",
+    "login:test": "node scripts/login-test.js",
+    "register:test": "node scripts/register-test.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.12.0",
+    "zod": "^3.25.0"
+  }
+}
