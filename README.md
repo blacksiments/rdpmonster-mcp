@@ -20,6 +20,10 @@ JavaScript-rendered pages are **not** required. Cloudflare challenges, CAPTCHAs,
 | --- | --- |
 | `login` | Log in to manager.rdp.monster. Optional `email` / `password`; otherwise uses env or `~/.config/rdpmonster-mcp/{email,password}`. Starts a fresh HTTP session and keeps cookies in memory. |
 | `register` | Create a new WHMCS account (`email`, `password` required; optional `firstname`, `lastname`, `country`). On success the process session is already logged in. |
+| `list_services` / `get_my_services` | List products/services for the logged-in account with `status`, pricing, next due date, dedicated IP. Optional `status` filter (`Active`, `Pending`, …). Requires `login` first. |
+| `get_service` | Product details by service id: IP, username, OS, billing fields, status. |
+| `get_connection` | Connection hint (`host`, `port`, `protocol`, `username`, `password` if the panel exposes Cloud-Init Password). |
+| `list_invoices` / `get_my_invoices` | List invoices with totals and statuses (`Paid`, `Unpaid`, `Cancelled`, …). Optional `status` filter. |
 | `status` | Check whether the current in-memory session is still authenticated. Returns `reason: "no_session"` if `login` / `register` was never called. |
 
 All tools return a JSON text payload (`ok`, identity fields, and error messages on failure). `login` and `register` replace any previous session in the process.
@@ -143,10 +147,9 @@ scripts/
 
 ## Roadmap
 
-- `list_services` — active products in the client area
-- `get_service` — product details by id
-- `get_connection` — RDP host / credentials for a service
 - Optional Infisical-backed multi-account picker as a first-class tool
+- Reveal Cloud-Init password when the panel exposes it via module AJAX
+- Order / renew / pay invoice helpers
 
 ## Practical limitations
 
@@ -154,7 +157,8 @@ scripts/
 - Markup or CSRF field renames on manager.rdp.monster will break token extraction until updated.
 - Session cookies exist only in the MCP process; they are lost on restart and are not shared across parallel server instances.
 - `register` hits the live panel — duplicate emails and weak passwords are rejected by WHMCS, not by local validation beyond length.
-- This server does not purchase services, open tickets, or scrape RDP connection details yet (see Roadmap).
+- Cloud-Init / root password is often empty in the product HTML; `get_connection` returns `password: null` and a note when that happens.
+- Invoice and service `status` filters are applied client-side (the panel query string does not narrow the table).
 
 ## License
 

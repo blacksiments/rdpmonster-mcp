@@ -3,14 +3,16 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "MCP for manager.rdp.monster (black) — login + register",
+  "description": "MCP for manager.rdp.monster (black) — login, register, services, invoices",
   "bin": {
     "rdpmonster-mcp": "./src/index.js"
   },
   "scripts": {
     "start": "node src/index.js",
     "login:test": "node scripts/login-test.js",
-    "register:test": "node scripts/register-test.js"
+    "register:test": "node scripts/register-test.js",
+    "services:test": "node scripts/services-test.js",
+    "details:test": "node scripts/details-test.js"
   },
   "engines": {
     "node": ">=18"
