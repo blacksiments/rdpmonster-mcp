@@ -7,8 +7,10 @@ import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js"
 import { z } from "zod";
 
 import { loadCredentials } from "./credentials.js";
+import { listTariffs, getTariffOptions } from "./catalog.js";
 import { listInvoices } from "./invoices.js";
 import { checkSession, login } from "./login.js";
+import { createOrder } from "./order.js";
 import { register } from "./register.js";
 import { getConnection, getService } from "./service.js";
 import { listServices } from "./services.js";
@@ -195,6 +197,92 @@ server.tool(
   async ({ status }) => {
     try {
       const result = await listInvoices(requireSession(), status ? { status } : {});
+      return ok({ ...result, email: loggedInEmail });
+    } catch (e) {
+      return fail(e);
+    }
+  },
+);
+
+server.tool(
+  "list_tariffs",
+  "List available RDP Monster store tariffs (Europe/USA/HP/Dedicated) with prices and specs. Login optional but recommended.",
+  {
+    group: z
+      .string()
+      .optional()
+      .describe(
+        "Optional store group slug: europe, usa, europe-high-performance, usa-high-performance, europe-dedicated-servers",
+      ),
+  },
+  async ({ group }) => {
+    try {
+      const s = session || new HttpSession();
+      const result = await listTariffs(s, group ? { group } : {});
+      return ok(result);
+    } catch (e) {
+      return fail(e);
+    }
+  },
+);
+
+server.tool(
+  "get_tariff_options",
+  "Load configure options for one tariff slug (billing cycles, OS, disk, extra IPv4). Opens configure step.",
+  {
+    slug: z
+      .string()
+      .describe("Tariff slug from list_tariffs, e.g. europe/standard or usa/basic-usa"),
+  },
+  async ({ slug }) => {
+    try {
+      const s = session || new HttpSession();
+      const result = await getTariffOptions(s, slug);
+      return ok(result);
+    } catch (e) {
+      return fail(e);
+    }
+  },
+);
+
+server.tool(
+  "create_order",
+  "Add one or more tariffs to the WHMCS cart (qty, billing cycle, OS, disk, maxPrice). Does not pay. Requires login.",
+  {
+    items: z
+      .array(
+        z.object({
+          slug: z.string().describe("Tariff slug, e.g. europe/standard"),
+          qty: z.number().int().min(1).optional().describe("How many servers; default 1"),
+          billingcycle: z
+            .string()
+            .optional()
+            .describe("monthly | quarterly | annually (default monthly)"),
+          os: z.string().optional().describe('OS label or option id, e.g. "Ubuntu 24.04"'),
+          disk: z.string().optional().describe('Disk label or option id, e.g. "70 GB"'),
+          extraIpv4: z.union([z.number(), z.string()]).optional().describe("Extra IPv4 count; default 0"),
+          maxPrice: z
+            .number()
+            .optional()
+            .describe("Refuse if selected billing-cycle price exceeds this USD amount"),
+          exactPrice: z
+            .number()
+            .optional()
+            .describe("Refuse unless billing-cycle price equals this USD amount"),
+        }),
+      )
+      .min(1),
+    emptyCart: z
+      .boolean()
+      .optional()
+      .describe("Clear cart before adding; default true"),
+  },
+  async ({ items, emptyCart }) => {
+    try {
+      const result = await createOrder(requireSession(), {
+        items,
+        emptyCart: emptyCart !== false,
+      });
       return ok({ ...result, email: loggedInEmail });
     } catch (e) {
       return fail(e);

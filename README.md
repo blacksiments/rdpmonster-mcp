@@ -24,6 +24,9 @@ JavaScript-rendered pages are **not** required. Cloudflare challenges, CAPTCHAs,
 | `get_service` | Product details by service id: IP, username, OS, billing fields, status. |
 | `get_connection` | Connection hint (`host`, `port`, `protocol`, `username`, `password` if the panel exposes Cloud-Init Password). |
 | `list_invoices` / `get_my_invoices` | List invoices with totals and statuses (`Paid`, `Unpaid`, `Cancelled`, …). Optional `status` filter. |
+| `list_tariffs` | Catalog of store tariffs (group, slug, priceFrom, specs). Optional `group` filter. |
+| `get_tariff_options` | Configure options for one slug: billing cycles, OS, disk, extra IPv4. |
+| `create_order` | Put `items[]` into the WHMCS cart (`qty`, `billingcycle`, `os`, `disk`, `maxPrice` / `exactPrice`). Does **not** pay. Requires `login`. |
 | `status` | Check whether the current in-memory session is still authenticated. Returns `reason: "no_session"` if `login` / `register` was never called. |
 
 All tools return a JSON text payload (`ok`, identity fields, and error messages on failure). `login` and `register` replace any previous session in the process.
@@ -149,7 +152,7 @@ scripts/
 
 - Optional Infisical-backed multi-account picker as a first-class tool
 - Reveal Cloud-Init password when the panel exposes it via module AJAX
-- Order / renew / pay invoice helpers
+- Complete checkout / pay invoice helpers (create_order currently stops at cart)
 
 ## Practical limitations
 

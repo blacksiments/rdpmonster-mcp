@@ -12,7 +12,8 @@
     "login:test": "node scripts/login-test.js",
     "register:test": "node scripts/register-test.js",
     "services:test": "node scripts/services-test.js",
-    "details:test": "node scripts/details-test.js"
+    "details:test": "node scripts/details-test.js",
+    "order:test": "node scripts/order-test.js"
   },
   "engines": {
     "node": ">=18"
